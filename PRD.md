@@ -17,6 +17,13 @@ Ustedes van a construir una aplicación web educativa que lea en tiempo real la 
 ### Enfoque pedagógico
 Con este proyecto ustedes aprenderán JavaScript de forma práctica, integrando software con hardware real.
 
+### Regla de lenguaje del proyecto
+Durante este proyecto, ustedes trabajarán **solo con JavaScript**:
+- Backend: Node.js + Express.
+- Frontend: JavaScript en el navegador.
+- Integración hardware: lectura serial desde JavaScript.
+No se usarán otros lenguajes para el desarrollo principal de las actividades.
+
 ---
 
 ## 2. Contexto y problema
