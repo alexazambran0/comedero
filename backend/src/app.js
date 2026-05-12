@@ -1,16 +1,47 @@
-const express = require('express');
-const path = require('path');
-const app = express();
-const port = 3000;
+const express = require('express')
+const path = require('path')
 
-// ESTA LÍNEA es la que te falta:
-app.use(express.static(path.join(__dirname, '../../frontend')));
+const app = express()
+const PORT = 3000
 
-// Esta es para que al entrar a localhost:3000 te mande el index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/index.html'));
-});
+let lecturaActual = {
+  nivel: 72,
+  estado_motor: 'OFF',
+  timestamp: new Date().toISOString()
+}
 
-app.listen(port, () => {
-  
-});
+const historial = [lecturaActual]
+
+app.use(express.static(path.join(__dirname, '../../frontend')))
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, servicio: 'activo' })
+})
+
+app.get('/api/status', (req, res) => {
+  res.json(lecturaActual)
+})
+
+app.get('/api/history', (req, res) => {
+  const limit = Number(req.query.limit) || 50
+  res.json(historial.slice(-Math.max(1, Math.min(limit, 200))))
+})
+
+// Simulador de lecturas para practica sin hardware
+setInterval(() => {
+  const delta = Math.floor(Math.random() * 9) - 4
+  const nivelNuevo = Math.max(0, Math.min(100, lecturaActual.nivel + delta))
+
+  lecturaActual = {
+    nivel: nivelNuevo,
+    estado_motor: Math.random() > 0.75 ? 'ON' : 'OFF',
+    timestamp: new Date().toISOString()
+  }
+
+  historial.push(lecturaActual)
+  if (historial.length > 500) historial.shift()
+}, 2000)
+
+app.listen(PORT, () => {
+  console.log(`Servidor listo en http://localhost:${PORT}`)
+})

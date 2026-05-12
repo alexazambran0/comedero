@@ -1,0 +1,12 @@
+{
+  "name": "aula-iot-comedero-backend",
+  "version": "1.0.0",
+  "description": "Backend educativo Node.js + Express para monitor de comedero",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
