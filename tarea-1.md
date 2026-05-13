@@ -1,170 +1,113 @@
-# Tarea-1 - Guia Paso a Paso (Nivel Basico)
+# Tarea 1 - Consolidar el monitoreo del comedero
 
-**Fecha:** 23 de abril de 2026  
-**Meta de esta tarea:** que ustedes vean datos del comedero en una pagina web, aunque por ahora sean datos simulados.
+**Proyecto:** Comedero Automatico para Gatos  
+**Nivel:** Basico  
+**Objetivo:** entender el proyecto actual y dejar listo un panel de monitoreo claro y estable.
 
-## Lenguaje de esta tarea
+## Que van a aprender
 
-En esta tarea ustedes trabajaran **solo con JavaScript**:
-- Backend: **Node.js + Express (JavaScript)**.
-- Frontend: **JavaScript en el navegador**.
-- No usaremos Python, Java ni otros lenguajes en esta sesion.
+En esta tarea ustedes van a practicar:
 
-## Antes de empezar
+- lectura de codigo existente,
+- consumo de una API,
+- actualizacion de datos en pantalla,
+- validacion basica de datos,
+- mejoras visuales simples.
 
-1. Verifiquen que tienen Node.js instalado:
-```bash
-node -v
-npm -v
-```
-2. Si ambos comandos muestran version, pueden continuar.
+## Contexto
 
-## Paso 1: Crear carpetas y archivos
+El proyecto ya tiene:
 
-Ejecuten estos comandos en la raiz del proyecto:
+- un backend con datos simulados,
+- un frontend que consulta el backend,
+- un panel que muestra el estado del comedero.
 
-```bash
-mkdir -p backend/src frontend
+Antes de controlar el hardware real, primero necesitamos que este monitoreo funcione bien.
 
-touch backend/src/app.js
-touch frontend/index.html
-touch frontend/app.js
-```
+## Meta de la tarea
 
-Al final deben tener:
-- `backend/src/app.js`
-- `frontend/index.html`
-- `frontend/app.js`
+Al terminar, el sistema debe:
 
-## Paso 2: Preparar el backend
+1. mostrar si el backend esta conectado,
+2. mostrar nivel, motor y hora de ultima lectura,
+3. mostrar historial reciente,
+4. resaltar niveles criticos,
+5. responder un `health` mas completo.
 
-1. Entren a la carpeta backend:
-```bash
-cd backend
-```
+## Archivos que deben revisar
 
-2. Inicialicen Node:
-```bash
-npm init -y
-```
+- [backend/src/app.js](/home/hog/Documentos/1113-2026-proyectos/comedero/backend/src/app.js:1)
+- [frontend/index.html](/home/hog/Documentos/1113-2026-proyectos/comedero/frontend/index.html:1)
+- [frontend/app.js](/home/hog/Documentos/1113-2026-proyectos/comedero/frontend/app.js:1)
 
-3. Instalen Express:
-```bash
-npm install express
-```
+## Actividades
 
-4. Peguen este codigo en `backend/src/app.js`:
+### 1. Mejorar `GET /api/health`
 
-```js
-const express = require('express');
-const path = require('path');
+El endpoint debe devolver:
 
-const app = express();
-const PORT = 3000;
+- `ok`
+- `servicio`
+- `lecturas_guardadas`
+- `timestamp`
 
-const lecturaActual = {
-  nivel: 72,
-  estado_motor: 'OFF',
-  timestamp: new Date().toISOString()
-};
+Ejemplo esperado:
 
-const historial = [lecturaActual];
-
-app.use(express.static(path.join(__dirname, '../../frontend')));
-
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, servicio: 'activo' });
-});
-
-app.get('/api/status', (req, res) => {
-  res.json(lecturaActual);
-});
-
-app.get('/api/history', (req, res) => {
-  res.json(historial.slice(-50));
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor listo en http://localhost:${PORT}`);
-});
-```
-
-5. Ejecuten el servidor:
-```bash
-node src/app.js
-```
-
-6. Prueben en el navegador:
-- `http://localhost:3000/api/health`
-- `http://localhost:3000/api/status`
-
-Si funciona, sigan al paso 3.
-
-## Paso 3: Crear el frontend
-
-1. Peguen este codigo en `frontend/index.html`:
-
-```html
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monitor Comedero</title>
-  </head>
-  <body>
-    <h1>Monitor del Comedero</h1>
-    <p id="nivel">Nivel: ...</p>
-    <p id="motor">Motor: ...</p>
-    <p id="hora">Ultima lectura: ...</p>
-
-    <script src="app.js"></script>
-  </body>
-</html>
-```
-
-2. Peguen este codigo en `frontend/app.js`:
-
-```js
-async function cargarEstado() {
-  const respuesta = await fetch('/api/status');
-  const data = await respuesta.json();
-
-  document.getElementById('nivel').textContent = `Nivel: ${data.nivel}%`;
-  document.getElementById('motor').textContent = `Motor: ${data.estado_motor}`;
-  document.getElementById('hora').textContent = `Ultima lectura: ${data.timestamp}`;
+```json
+{
+  "ok": true,
+  "servicio": "activo",
+  "lecturas_guardadas": 25,
+  "timestamp": "2026-05-13T14:00:00.000Z"
 }
-
-cargarEstado();
-setInterval(cargarEstado, 2000);
 ```
 
-3. Abran:
-- `http://localhost:3000`
+### 2. Validar las lecturas simuladas
 
-Deben ver nivel, motor y hora actualizandose.
+Antes de guardar una lectura en historial, revisen que:
 
-## Paso 4: Renombrar el repositorio
+- `nivel` este entre 0 y 100,
+- `estado_motor` sea `ON` o `OFF`,
+- `timestamp` exista.
 
-1. En GitHub cambien el nombre del repo a:
-- `aula-iot-comedero`
+### 3. Agregar estado de conexion en el frontend
 
-2. En terminal, actualicen el remoto:
+En la pagina debe aparecer un texto como:
 
-```bash
-git remote set-url origin https://github.com/alexazambran0/aula-iot-comedero.git
-git remote -v
-```
+- `Conectado` cuando la API responde,
+- `Desconectado` cuando falla.
 
-## Entregable minimo
+### 4. Resaltar niveles criticos
 
-Cada equipo entrega:
-1. Captura de `http://localhost:3000/api/status`.
-2. Captura de `http://localhost:3000` con los datos en pantalla.
-3. Link del repo con el nuevo nombre `aula-iot-comedero`.
+Si una lectura tiene `nivel < 20`, esa fila del historial debe verse diferente para que el riesgo sea evidente.
 
----
+## Paso a paso sugerido
 
-Design by Henry by kyrbot.com
+1. Ejecuten el proyecto actual.
+2. Revisen como funciona `GET /api/status`.
+3. Modifiquen `GET /api/health`.
+4. Agreguen la validacion antes de guardar en historial.
+5. Agreguen el texto de conexion en el frontend.
+6. Apliquen estilo visual a filas criticas.
+7. Prueben apagando y encendiendo el backend.
 
-"La programacion premia a quien insiste un intento mas."
+## Pruebas minimas
+
+1. Abrir `http://localhost:3000`.
+2. Abrir `http://localhost:3000/api/health`.
+3. Confirmar que el historial se actualiza.
+4. Confirmar que se ve el estado `Conectado`.
+5. Confirmar que una lectura critica se distingue visualmente.
+
+## Entregable
+
+El equipo debe entregar:
+
+1. Codigo actualizado.
+2. Captura del panel funcionando.
+3. Captura de `/api/health`.
+4. Explicacion corta de que cambiaron.
+
+## Por que esta tarea existe
+
+Si el monitoreo no es claro ni confiable, no tiene sentido pasar a control manual o a horarios. Esta tarea prepara la base del proyecto.

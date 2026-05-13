@@ -1,159 +1,138 @@
-# Comedero Automático para Gatos
+# Comedero Automatico para Gatos
 
-Aplicación web para supervisar y, en fases posteriores, controlar un comedero de gatos construido con `Arduino Uno` y un tornillo sinfín como mecanismo dispensador.
+Proyecto educativo para estudiantes que estan empezando a programar. La meta es construir una aplicacion web que permita ver el estado del comedero y, en las siguientes fases, controlar un `Arduino Uno` que mueve un tornillo sinfin para dispensar comida.
 
-El objetivo final del proyecto es permitir dos modos de operación desde la web:
+## Que se va a construir
 
-- Programar horarios de dispensado.
-- Activar el dispensado manualmente.
+Este proyecto se hara por etapas.
 
-Actualmente el repositorio ya tiene un `MVP` funcional de monitoreo con datos simulados. Todavía no existe integración real con Arduino ni control del motor desde la web.
+### Etapa 1. Monitoreo web
 
-## Objetivo del proyecto
+La aplicacion debe mostrar:
 
-Construir una solución educativa de `IoT` que conecte hardware y software en este flujo:
+- nivel de comida,
+- estado del motor,
+- hora de la ultima lectura,
+- historial reciente.
 
-`Aplicación web -> API backend -> Arduino Uno -> motor/tornillo sinfín -> dispensado de comida`
+### Etapa 2. Control manual
 
-Y, de forma complementaria:
+La aplicacion debe permitir:
 
-`Arduino/lecturas -> backend -> panel web -> historial`
+- presionar un boton en la web,
+- enviar un comando al backend,
+- hacer que el Arduino dispense comida una vez.
 
-## Estado actual del proyecto
+### Etapa 3. Horarios
 
-Lo que ya existe:
+La aplicacion debe permitir:
 
-- Backend con `Node.js + Express`.
-- Frontend con `HTML + JavaScript vanilla`.
-- Panel web servido por el backend.
-- API para consultar salud del servicio.
-- API para consultar estado actual del comedero.
-- API para consultar historial reciente.
-- Simulación automática de lecturas cada 2 segundos.
-- Clasificación visual del nivel de comida: `normal`, `bajo`, `critico`.
+- crear horarios de alimentacion,
+- guardar esos horarios,
+- ejecutar el dispensado automaticamente cuando llegue la hora.
 
-Lo que todavía no existe:
+## Objetivo educativo
 
-- Comunicación serial con `Arduino Uno`.
-- Programación de horarios de alimentación.
-- Botón de dispensado manual conectado al hardware.
-- Persistencia real en base de datos o archivo.
-- Validación robusta de lecturas.
-- Estado de conexión con el dispositivo físico.
+Los estudiantes aprenderan a:
 
-## Análisis del código actual
+1. Crear un servidor con `Node.js` y `Express`.
+2. Consumir una API desde `JavaScript` en el navegador.
+3. Mostrar datos en una pagina web.
+4. Conectar software con hardware usando `Arduino Uno`.
+5. Organizar un proyecto por fases pequenas y claras.
+
+## Estado actual
+
+Hoy el proyecto ya tiene una base funcional, pero todavia esta en etapa de monitoreo con datos simulados.
+
+Ya existe:
+
+- backend con `Node.js + Express`,
+- frontend con `HTML + JavaScript`,
+- endpoint `GET /api/health`,
+- endpoint `GET /api/status`,
+- endpoint `GET /api/history`,
+- actualizacion del panel cada 2 segundos,
+- historial en memoria.
+
+Todavia falta:
+
+- conexion real con `Arduino Uno`,
+- boton de dispensado manual,
+- formulario para horarios,
+- almacenamiento permanente,
+- comandos reales hacia el motor.
+
+## Que hace el codigo actual
 
 ### Backend
 
-El backend en [backend/src/app.js](/home/hog/Documentos/1113-2026-proyectos/comedero/backend/src/app.js:1) hace estas funciones:
+Archivo principal: [backend/src/app.js](/home/hog/Documentos/1113-2026-proyectos/comedero/backend/src/app.js:1)
 
-- Sirve el frontend estático.
-- Expone `GET /api/health`.
-- Expone `GET /api/status`.
-- Expone `GET /api/history?limit=20`.
-- Mantiene en memoria `lecturaActual` e `historial`.
-- Genera lecturas simuladas con `setInterval(...)` cada 2 segundos.
+Actualmente el backend:
 
-Limitaciones actuales del backend:
-
-- Toda la información se pierde al reiniciar el servidor.
-- No hay rutas para crear horarios ni para dispensado manual.
-- No existe comunicación serial ni control de pines.
-- `health` solo responde estado básico del servicio.
+- sirve el frontend,
+- guarda una lectura actual en memoria,
+- guarda un historial en memoria,
+- responde tres endpoints,
+- simula nuevas lecturas cada 2 segundos.
 
 ### Frontend
 
-El frontend en [frontend/index.html](/home/hog/Documentos/1113-2026-proyectos/comedero/frontend/index.html:1) y [frontend/app.js](/home/hog/Documentos/1113-2026-proyectos/comedero/frontend/app.js:1) ya muestra:
+Archivos principales:
 
-- Nivel de comida.
-- Estado del motor.
-- Fecha/hora de última lectura.
-- Estado visual por nivel.
-- Tabla de últimas lecturas.
+- [frontend/index.html](/home/hog/Documentos/1113-2026-proyectos/comedero/frontend/index.html:1)
+- [frontend/app.js](/home/hog/Documentos/1113-2026-proyectos/comedero/frontend/app.js:1)
 
-Limitaciones actuales del frontend:
+Actualmente el frontend:
 
-- No hay formulario para horarios.
-- No hay botón de dispensado manual.
-- No hay indicador de conexión/desconexión.
-- No hay vista de configuración del hardware.
+- consulta el backend,
+- muestra nivel, motor y hora,
+- clasifica el nivel como `normal`, `bajo` o `critico`,
+- muestra una tabla con lecturas recientes.
 
-## Arquitectura actual
+## Flujo del proyecto
 
-```txt
-frontend/index.html + frontend/app.js
-                |
-                v
-       backend/src/app.js
-                |
-                v
-     simulador en memoria
-```
+Hoy:
 
-## Arquitectura objetivo
+`Frontend -> Backend -> Simulacion`
 
-```txt
-Frontend web
-  |- panel de estado
-  |- programación de horarios
-  |- dispensado manual
-                |
-                v
-Backend Node.js
-  |- API REST
-  |- lógica de horarios
-  |- historial
-  |- integración serial
-                |
-                v
-Arduino Uno
-  |- recibe comando
-  |- activa motor
-  |- mueve tornillo sinfín
-  |- reporta estado
-```
+Meta final:
 
-## Estructura del proyecto
+`Frontend -> Backend -> Arduino Uno -> Motor -> Comida`
+
+## Estructura del repositorio
 
 ```txt
 comedero/
   backend/
-    package.json
-    package-lock.json
     src/
       app.js
+    package.json
   frontend/
     index.html
     app.js
+  README.md
   PRD.md
   tarea-1.md
   tarea-2.md
-  presentacion.txt
-  README.md
 ```
 
-## Tecnologías actuales
+## Requisitos
 
-- `Node.js`
-- `Express`
-- `HTML`
-- `JavaScript vanilla`
-
-## Requisitos para ejecutar
-
-- `Node.js` 18 o superior
+- `Node.js` 18+
 - `npm`
 
-Verificación:
+Verificacion:
 
 ```bash
 node -v
 npm -v
 ```
 
-## Ejecución local
+## Como ejecutar el proyecto
 
-1. Entrar al backend:
+1. Entrar a `backend`:
 
 ```bash
 cd backend
@@ -171,31 +150,22 @@ npm install
 npm start
 ```
 
-4. Abrir en el navegador:
+4. Abrir:
 
 - `http://localhost:3000`
 - `http://localhost:3000/api/health`
 - `http://localhost:3000/api/status`
 - `http://localhost:3000/api/history?limit=20`
 
-## Endpoints disponibles hoy
+## API actual
 
 ### `GET /api/health`
 
-Retorna el estado básico del backend.
-
-Ejemplo:
-
-```json
-{
-  "ok": true,
-  "servicio": "activo"
-}
-```
+Confirma que el backend esta activo.
 
 ### `GET /api/status`
 
-Retorna la última lectura simulada.
+Devuelve la ultima lectura simulada.
 
 Ejemplo:
 
@@ -209,90 +179,57 @@ Ejemplo:
 
 ### `GET /api/history?limit=20`
 
-Retorna las lecturas recientes almacenadas en memoria.
+Devuelve las ultimas lecturas simuladas.
 
-## Funcionalidades objetivo de negocio
+## Plan del proyecto
 
-Cuando el proyecto avance a la siguiente fase, la aplicación debería permitir:
+### Fase 1. Mejorar el monitoreo
 
-1. Configurar horarios de alimentación.
-2. Ejecutar dispensado manual desde la web.
-3. Ver estado del comedero en tiempo real.
-4. Consultar historial de dispensados y lecturas.
-5. Detectar nivel bajo de comida.
-6. Confirmar si el Arduino está conectado.
+Se va a trabajar en:
 
-## Roadmap recomendado
+- validacion de lecturas,
+- mejor endpoint de salud,
+- indicador de conexion,
+- mejor visualizacion del historial.
 
-### Fase 1. Consolidar el MVP actual
+### Fase 2. Agregar control manual
 
-- Agregar validación de lecturas.
-- Agregar indicador de conexión en frontend.
-- Resaltar eventos críticos.
-- Mejorar respuesta de `health`.
+Se va a trabajar en:
 
-### Fase 2. Integración con hardware
+- boton de dispensado,
+- endpoint `POST` para ordenar dispensado,
+- estructura de comando para Arduino.
 
-- Conectar `Arduino Uno` por puerto serial.
-- Definir formato de mensajes entre backend y Arduino.
-- Reemplazar simulación por lecturas reales.
+### Fase 3. Agregar horarios
 
-### Fase 3. Control del comedero
+Se va a trabajar en:
 
-- Crear endpoint para dispensado manual.
-- Crear endpoint para guardar horarios.
-- Implementar scheduler en backend.
-- Enviar comandos al Arduino para activar el tornillo sinfín.
+- crear horarios desde la web,
+- guardar horarios en backend,
+- ejecutar horarios automaticamente.
 
-### Fase 4. Persistencia y robustez
+### Fase 4. Conectar Arduino real
 
-- Guardar historial en `SQLite` o `JSON`.
-- Registrar errores de comunicación.
-- Manejar reconexión serial.
-- Agregar logs de eventos.
+Se va a trabajar en:
 
-## Propuesta de siguientes endpoints
+- lectura serial,
+- envio de comandos al dispositivo,
+- manejo de errores de conexion.
 
-Estos endpoints aún no existen, pero son consistentes con el objetivo del proyecto:
+## Endpoints que probablemente se agregaran
 
 - `POST /api/feed/manual`
 - `GET /api/schedules`
 - `POST /api/schedules`
-- `PUT /api/schedules/:id`
 - `DELETE /api/schedules/:id`
 - `GET /api/device/status`
 
-## Formato sugerido para integración con Arduino
-
-Lectura enviada por Arduino al backend:
-
-```json
-{
-  "timestamp": "2026-05-13T12:00:00Z",
-  "nivel": 68,
-  "estado_motor": "OFF",
-  "evento": "lectura"
-}
-```
-
-Comando enviado por backend al Arduino:
-
-```json
-{
-  "accion": "dispensar",
-  "duracion_ms": 2500,
-  "origen": "manual"
-}
-```
-
-## Documentos de apoyo
+## Documentos de clase
 
 - [PRD.md](/home/hog/Documentos/1113-2026-proyectos/comedero/PRD.md)
 - [tarea-1.md](/home/hog/Documentos/1113-2026-proyectos/comedero/tarea-1.md)
 - [tarea-2.md](/home/hog/Documentos/1113-2026-proyectos/comedero/tarea-2.md)
 
-## Observaciones importantes
+## Nota importante
 
-- El nombre actual del proyecto en la documentación previa es `PetFeeder Monitor EDU`, pero el enfoque real del repositorio ya está orientado a un comedero automático de gatos.
-- `backend/node_modules/` está versionado localmente en el directorio de trabajo; normalmente no debería incluirse en Git.
-- La documentación anterior describe más monitoreo que automatización. Este `README` separa claramente el estado actual del objetivo final.
+Este repositorio todavia no controla el comedero real. En este momento sirve como base para que los estudiantes entiendan primero el monitoreo y luego agreguen control manual y horarios sin saltarse pasos.
